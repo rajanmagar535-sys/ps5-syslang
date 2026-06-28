@@ -17,15 +17,13 @@ struct MonoThread;
 
 static MonoDomain *g_root_domain;
 
-struct HookConfig {
-  uint32_t magic;
-  int32_t language_id;
-};
+#ifndef LANGUAGE_ID
+#define LANGUAGE_ID 11
+#endif
 
-static volatile HookConfig g_hook_config = {
-    0x534c414e,  // "SLAN"
-    11,
-};
+#if LANGUAGE_ID < 0 || LANGUAGE_ID > 30
+#error "LANGUAGE_ID must be in the 0-30 range"
+#endif
 
 static MonoDomain *(*mono_get_root_domain)(void);
 static MonoThread *(*mono_thread_attach)(MonoDomain *);
@@ -99,7 +97,7 @@ static MonoObject *invoke_method(MonoMethod *method, void *instance, void **args
 
 static int configured_language_id(void)
 {
-  return g_hook_config.language_id;
+  return LANGUAGE_ID;
 }
 
 static void change_system_language(MonoImage *shellapp_image)
