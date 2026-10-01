@@ -8,20 +8,34 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    # 核心大招：直接调用原作者打包好的完美底层环境
-    container: ghcr.io/john-tornblom/ps5-payload-sdk:latest
-    
     steps:
-    - name: 1. 拉取你的源码 (Checkout Code)
+    - name: 1. 拉取源码（关键：强制拉取关联的第三方子模块）
       uses: actions/checkout@v4
+      with:
+        submodules: recursive
 
-    - name: 2. 直接开始编译 (Compile the Plugin)
+    - name: 2. 安装编译环境（关键：补充 xxd 转换工具）
       run: |
-        # 容器内一切环境已就绪，直接运行 make 即可
+        sudo apt-get update
+        sudo apt-get install -y clang lld make xxd unzip curl
+
+    - name: 3. 暴力部署稳定版 PS5 SDK
+      run: |
+        # 直接跨仓库抓取已知最稳定的 V0.43 版本
+        curl -L -o sdk.zip https://github.com/ps5-payload-dev/sdk/releases/download/v0.43/ps5-payload-sdk.zip
+        
+        # 解压到临时目录
+        unzip -q sdk.zip -d /tmp/
+        
+        # 直接把解压出来的核心文件夹挪到系统根目录，彻底杜绝路径嵌套导致找不到文件的问题
+        sudo mv /tmp/ps5-payload-sdk /opt/ps5-payload-sdk
+
+    - name: 4. 开始编译插件
+      run: |
         export PS5_PAYLOAD_SDK=/opt/ps5-payload-sdk
         make
 
-    - name: 3. 导出编译成果 (Upload Artifact)
+    - name: 5. 导出编译成果
       uses: actions/upload-artifact@v4
       with:
         name: ps5-syslang-build
