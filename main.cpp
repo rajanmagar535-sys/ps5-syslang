@@ -162,7 +162,7 @@ int main(void)
 
   MonoAssembly *shellapp = mono_domain_assembly_open(
       g_root_domain,
-      "/system_ex/common_ex/lib/Sce.Vsh.ShellUI.ReactNativeShellApp.dll");
+      "/system_ex/common_ex/lib/Sce.Vsh.ShellUI.ReactNativeShellApp.dll.sprx");
   MonoImage *shellapp_image = shellapp ? mono_assembly_get_image(shellapp) : nullptr;
   if (!shellapp_image) {
     log_line("ReactNativeShellApp not found");
