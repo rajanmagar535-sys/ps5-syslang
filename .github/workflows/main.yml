@@ -17,11 +17,11 @@ jobs:
         sudo apt-get update
         sudo apt-get install -y clang lld make curl unzip vim-common
 
-    - name: 3. 下载并部署 PS5 Payload SDK (Setup SDK)
+    - name: 3. 下载并克隆 PS5 Payload SDK (Setup SDK)
       run: |
-        curl -L -o ps5-payload-sdk.zip https://github.com/ps5-payload-dev/sdk/releases/download/v0.43/ps5-payload-sdk.zip
-        sudo unzip -q ps5-payload-sdk.zip -d /opt/ps5-payload-sdk
-        
+        sudo rm -rf /opt/ps5-payload-sdk
+        sudo git clone https://github.com/john-tornblom/ps5-payload-sdk.git /opt/ps5-payload-sdk
+
     - name: 4. 开始编译插件 (Compile the Plugin)
       run: |
         export PS5_PAYLOAD_SDK=/opt/ps5-payload-sdk
