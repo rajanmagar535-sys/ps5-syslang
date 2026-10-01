@@ -8,32 +8,20 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    # 核心大招：直接调用原作者打包好的完美底层环境
+    container: ghcr.io/john-tornblom/ps5-payload-sdk:latest
+    
     steps:
     - name: 1. 拉取你的源码 (Checkout Code)
       uses: actions/checkout@v4
 
-    - name: 2. 安装基础编译工具
+    - name: 2. 直接开始编译 (Compile the Plugin)
       run: |
-        sudo apt-get update
-        sudo apt-get install -y clang lld make
-
-    - name: 3. 完美部署 PS5 Payload SDK
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: |
-        # 直接从原作者仓库抓取最新的 .deb Ubuntu 安装包
-        gh release download --repo john-tornblom/ps5-payload-sdk --pattern "*.deb" --dir .
-        
-        # 运行原生安装程序，它会自动把 prospero.mk 等文件精准放入 /opt/ps5-payload-sdk
-        sudo dpkg -i *.deb
-        sudo apt-get install -f -y
-
-    - name: 4. 开始编译插件 (Compile the Plugin)
-      run: |
+        # 容器内一切环境已就绪，直接运行 make 即可
         export PS5_PAYLOAD_SDK=/opt/ps5-payload-sdk
         make
 
-    - name: 5. 导出编译成果 (Upload Artifact)
+    - name: 3. 导出编译成果 (Upload Artifact)
       uses: actions/upload-artifact@v4
       with:
         name: ps5-syslang-build
